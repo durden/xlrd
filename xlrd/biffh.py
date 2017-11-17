@@ -71,7 +71,8 @@ NUMBERFORMAT = FNU
     XL_CELL_BOOLEAN,
     XL_CELL_ERROR,
     XL_CELL_BLANK, # for use in debugging, gathering stats, etc
-) = range(7)
+    XL_CELL_FORMULA,
+) = range(8)
 
 biff_text_from_num = {
     0:  "(not BIFF)",

@@ -337,6 +337,7 @@ class Sheet(BaseObject):
         self._dimncols = 0
         self._cell_values = []
         self._cell_types = []
+        self._formulas = {}
         self._cell_xf_indexes = []
         self.defcolwidth = None
         self.standardwidth = None
@@ -408,6 +409,7 @@ class Sheet(BaseObject):
             self._cell_types[rowx][colx],
             self._cell_values[rowx][colx],
             xfx,
+            self.get_formula(rowx, colx),
             )
 
     def cell_value(self, rowx, colx):
@@ -629,10 +631,15 @@ class Sheet(BaseObject):
                     if s_fmt_info:
                         s_cell_xf_indexes[rowx][rlen:] = self.bf * nextra
 
-    def put_cell_ragged(self, rowx, colx, ctype, value, xf_index):
+    def put_cell_ragged(self, rowx, colx, ctype, value, xf_index, formula=None):
         if ctype is None:
             # we have a number, so look up the cell type
             ctype = self._xf_index_to_xl_type_map[xf_index]
+
+        if formula:
+            self._formulas[(rowx, colx)] = formula
+            ctype = XL_CELL_FORMULA
+
         assert 0 <= colx < self.utter_max_cols
         assert 0 <= rowx < self.utter_max_rows
         fmt_info = self.formatting_info
@@ -688,10 +695,22 @@ class Sheet(BaseObject):
             print("put_cell", rowx, colx, file=self.logfile)
             raise
 
-    def put_cell_unragged(self, rowx, colx, ctype, value, xf_index):
+    def get_formula(self, rowx, colx):
+        formula = self._formulas.get((rowx, colx))
+        if not formula:
+            return formula
+
+        return '=' + formula
+
+    def put_cell_unragged(self, rowx, colx, ctype, value, xf_index, formula=None):
         if ctype is None:
             # we have a number, so look up the cell type
             ctype = self._xf_index_to_xl_type_map[xf_index]
+
+        if formula:
+            self._formulas[(rowx, colx)] = formula
+            ctype = XL_CELL_FORMULA
+
         # assert 0 <= colx < self.utter_max_cols
         # assert 0 <= rowx < self.utter_max_rows
         try:
@@ -2218,6 +2237,7 @@ ctype_text = {
     XL_CELL_BOOLEAN: 'bool',
     XL_CELL_ERROR: 'error',
     XL_CELL_BLANK: 'blank',
+    XL_CELL_FORMULA: 'formula',
     }
 
 
@@ -2289,10 +2309,11 @@ class Cell(BaseObject):
 
     __slots__ = ['ctype', 'value', 'xf_index']
 
-    def __init__(self, ctype, value, xf_index=None):
+    def __init__(self, ctype, value, xf_index=None, formula=None):
         self.ctype = ctype
         self.value = value
         self.xf_index = xf_index
+        self.formula = formula
 
     def __repr__(self):
         if self.xf_index is None:

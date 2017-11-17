@@ -687,7 +687,7 @@ class X12Sheet(X12General):
                     if self.bk.formatting_info:
                         self.sheet.put_cell(rowx, colx, XL_CELL_BLANK, '', xf_index)
                 else:
-                    self.sheet.put_cell(rowx, colx, None, float(tvalue), xf_index)
+                    self.sheet.put_cell(rowx, colx, None, float(tvalue), xf_index, formula=formula)
             elif cell_type == "s":
                 # s = index into shared string table. 2nd most frequent type
                 # <v> child contains plain text which can go straight into int()

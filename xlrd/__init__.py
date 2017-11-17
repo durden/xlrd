@@ -16,7 +16,8 @@ from .biffh import (
     XL_CELL_ERROR,
     XL_CELL_EMPTY,
     XL_CELL_DATE,
-    XL_CELL_NUMBER
+    XL_CELL_NUMBER,
+    XL_CELL_FORMULA
     )
 from .formula import * # is constrained by __all__
 from .book import Book, colname
